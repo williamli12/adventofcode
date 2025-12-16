@@ -3,13 +3,29 @@
 brainstorming:
     - if the num has even number of digits, we can split it into 2 parts
     - one can have two pointers that start at 0 and then at midpoint and observe
-    - if odd length, it is not possible to have the same 2 repeating digits so we skip
+
+
+    - if odd length, we can apply the same logic as even numbers but ignore the middle element
 
 heuristics:
     - we dont necessarily need to parse through everything in the interval
     - we can (this is on the even number of digits problem) find all possible pattern (incrementally) of the first half, and then we can concatenate the first half with a repeat of itself onto the second half and see if that is less than the upper limit of the interval
-    - for odd numbers, we can skip all the odd numbers by going to raise 10 to the length of the odd number 
-    - ex: anything in the 100-999, the next even length number is 1000 which is 10^3 aka the length of 100-999
+    
+
+
+    - nvm this wont work for part 2.
+    ex: 1212121212 where splitting this is even but they dont match
+
+
+    part2 logic:
+
+    - we can get the length of the current curr
+    - find all possibe divisors as they are our only repeat pattern lengths
+    - we can calculate the next candidate for each chunk size and the winner is next invalid ID
+
+    - concretely: take the first k digits of current number 
+    - repeat them to fill length
+    - if result is smaller than curr num then increment the k digits by 1 and repeat again
 '''
 
 
@@ -36,16 +52,50 @@ for interval in intervals:
 
         #check the length by turning it back to a str
         str_ver = str(start)
-        if (len(str_ver) % 2 == 1):
-            # odd
+        candidates = []
+        length = len(str_ver)
 
-            start = 10 ** (len(str_ver))
+        # find all poss valid chunk sizes
+
+        chunks = []
+
+        for i in range(1, (length // 2) + 1):
+            if length % i == 0:
+                chunks.append(i)
+
+
+        # if no chuncks exists (except 1 )
+        if not chunks:
+            start = 10 #why
             continue
+
+        for i in chunks:
+            base = str_ver[:i]
+
+            repeat = length // i
+
+            full = base * repeat
+            val = int(full)
+
         
-        # even so we split
-        str_ver = str_ver[:(len(str_ver) // 2)]
+            # if val is smaller than curr then incrment 
+            if val < start:
+                next_base = str(int(base) + 1)
 
-        str_pattern = str_ver + str_ver
+                val = int(next_base * repeat)
+
+            candidates.append(val)
+
+        best = min(candidates)
+        print(best)
+        if best <= end:
+            count += best
+
+            start = best + 1
+        else:
+            break
+
+    
 
 
-        if len(str_pattern) == 0:
+print(count)
